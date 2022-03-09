@@ -1,0 +1,25 @@
+<div class="container text-center my-3">
+    <h1><strong>Empezar tarea {{data.empresa}}</strong></h1>  
+    <form method="post" action="/users/empezar" class="form-group row">
+        <div class="col-10 input-group">
+            <label for="descripcion" class="col-form-label col-2 text-start">Tarea</label>
+            <input type="text" class="form-control txtblack" {{!-- id="servicio" name="descripcion" --}} value="{{data.descripcion}}" disabled>
+            <input type="text" name="servicio" value="{{data.servicio}}" hidden>
+            <input type="text" name="descripcion" value="{{data.descripcion}}" hidden>
+        </div>
+        <div class="col-12 input-group">
+            <label for="hora" class="col-form-label col-2 text-start">Inicio</label>
+            <input type="text" class="form-control txtblack col-5" id="hora" name="hora" value="{{data.hora}}" disabled>
+            <input type="text" class="form-control txtblack col-5" id="fecha" name="fecha" value="{{data.fecha}}" disabled>
+        </div>
+        <div class="col-12 mt-2">
+            <textarea class="form-control" name="observaciones" id="observaciones" rows="5" placeholder="Observaciones"></textarea>
+        </div>
+        <footer class="fixed-bottom mb-2">
+            <div class="d-grid gap-2">
+                <button class="btn btn-success" role="button">Iniciar</button>
+            </div>
+        </footer>
+    </form>
+</div>
+<script src="../javascripts/empezar.js"></script>

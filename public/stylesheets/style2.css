@@ -1,0 +1,23 @@
+
+body {
+    height: 100%;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: rgb(156, 188, 236);
+    /* background-image: linear-gradient(-45deg, #640000, #ff9e9e, #ffffff, #ffffff); */
+}
+
+.zooms{
+    position: absolute;
+}
+
+.zoom {
+    transition: transform .2s;
+}
+
+.zoom:hover{
+    border-color: black;
+    border-width: 1px;
+    color: black;
+    background-color: rgb(236, 170, 98);
+}

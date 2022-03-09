@@ -1,0 +1,16 @@
+<div class="container text-center my-3">
+    <h1><strong>Servicios cliente {{data.empresa}}</strong></h1>
+    <ul class="list-group">
+        {{#if nada}}
+        <h1>No hay empresas</h1>
+        {{else}}
+        {{#each data.servicios}}
+        <li class="list-group-item d-flex justify-content-between align-items-center m-1">
+            {{Descripcion}}
+            <a href="/users/empezar?servicio={{Codigo}}"><button type="button" class="btn btn-success btn-sm">Empezar</button></a>
+        </li>
+        {{/each}}
+        {{/if}}
+    </ul>
+    <br>
+</div>

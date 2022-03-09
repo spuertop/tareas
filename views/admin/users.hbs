@@ -1,0 +1,151 @@
+<div class="container my-2">
+    <h1>🤓 Usuarios</h1>
+    <hr />
+    <div class="row">
+        <div class="col-4">
+            <h3>Gestión usuarios</h3>
+            <div class="list-group mb-1">
+                <button type="button" class="list-group-item list-group-item-action zoom" data-bs-toggle="modal" data-bs-target="#userList">
+                    ➕ Añadir usuario</button>
+                <!-- Modal -->
+                <div class="modal fade" id="userList" tabindex="-1" aria-labelledby="modal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title" id="exampleModalLabel">Usuarios Appia que no están en esta app...</h6><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="list-group mb-1">
+                                    <input class="list-group-item m-1" type="text" id="search" onkeyup="searchUser()" placeholder="Teclea nombre...">
+                                </div>
+                                {{!-- Lista de usuarios appia que no estan en panel --}}
+                                <div id="appiaUsers" class="list-group">
+                                    <div id="spinner" class="d-flex justify-content-center">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="usernames" class="list-group" id="usernameslist" role="tablist">
+                {{#each users}}
+                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" 
+                    id="list-home-list" data-bs-toggle="list" href="#list-{{id}}" role="tab">
+                    <div>{{nombre}} ({{usuario}})</div>
+                    <div>
+                        <span onclick="edituser({{id}})">✏️</span>
+                        <span onclick="deleteuser({{id}})">🗑️</span>  
+                    </div>
+                </a>
+                {{/each}}
+            </div>
+        </div>
+        <div class="col">
+            <h3>Permisos</h3>
+            <div class="tab-content" id="nav-tabContent">
+                {{#each users}}
+                <div class="tab-pane fade" id="list-{{id}}" role="tabpanel">
+                    {{#if_eq esAdmin true}}
+                    <form action="/admin/updateuser/{{id}}" method="post">
+                        <table class="table table-hover table-bordered bg-light text-center">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="col-4" scope="col">MÓDULO</th>
+                                    <th class="col-2" scope="col">Ver</th>
+                                    <th class="col-2" scope="col">Añadir</th>
+                                    <th class="col-2" scope="col">Modificar</th>
+                                    <th class="col-2" scope="col">Borrar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="col">Usuarios</th>
+                                    <td><input class="form-check-input" type="checkbox" name="ur" checked disabled></td>
+                                    <td><input class="form-check-input" type="checkbox" name="uc" checked disabled></td>
+                                    <td><input class="form-check-input" type="checkbox" name="uu" checked disabled></td>
+                                    <td><input class="form-check-input" type="checkbox" name="ud" checked disabled></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Calendario</th>
+                                    <td><input class="form-check-input" type="checkbox" name="cr" checked disabled></td>
+                                    <td><input class="form-check-input" type="checkbox" name="cc" checked disabled></td>
+                                    <td><input class="form-check-input" type="checkbox" name="cu" checked disabled></td>
+                                    <td><input class="form-check-input" type="checkbox" name="cd" checked disabled></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Registros</th>
+                                    <td><input class="form-check-input" type="checkbox" name="rr" checked disabled></td>
+                                    <td><input class="form-check-input" type="checkbox" name="rc" checked disabled></td>
+                                    <td><input class="form-check-input" type="checkbox" name="ru" checked disabled></td>
+                                    <td><input class="form-check-input" type="checkbox" name="rd" checked disabled></td>
+                                </tr>                                
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="adminSwitch" checked disabled>
+                                        <label class="form-check-label" for="adminSwitch">Es administrador</label>
+                                    </div>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <button class="btn btn-primary float-end" type="submit" {{!-- {{#disabled esAdmin}}{{/disabled}} --}}>💾 Guardar</button>
+                    </form>
+                    {{else}}
+                    <form action="/admin/updateuser/{{id}}" method="post">
+                        <table class="table table-hover table-bordered bg-light text-center">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="col-4" scope="col">MÓDULO</th>
+                                    <th class="col-2" scope="col">Ver</th>
+                                    <th class="col-2" scope="col">Añadir</th>
+                                    <th class="col-2" scope="col">Modificar</th>
+                                    <th class="col-2" scope="col">Borrar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="col">Usuarios</th>
+                                    <td><input class="form-check-input" type="checkbox" name="ur" {{#if permisos.ur}}checked{{/if}}></td>
+                                    <td><input class="form-check-input" type="checkbox" name="uc" {{#if permisos.uc}}checked{{/if}}></td>
+                                    <td><input class="form-check-input" type="checkbox" name="uu" {{#if permisos.uu}}checked{{/if}} ></td>
+                                    <td><input class="form-check-input" type="checkbox" name="ud" {{#if permisos.ud}}checked{{/if}}></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Calendario</th>
+                                    <td><input class="form-check-input" type="checkbox" name="cr" {{#if permisos.cr}}checked{{/if}} ></td>
+                                    <td><input class="form-check-input" type="checkbox" name="cc" {{#if permisos.cc}}checked{{/if}} ></td>
+                                    <td><input class="form-check-input" type="checkbox" name="cu" {{#if permisos.cu}}checked{{/if}} ></td>
+                                    <td><input class="form-check-input" type="checkbox" name="cd" {{#if permisos.cd}}checked{{/if}} ></td>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Registros</th>
+                                    <td><input class="form-check-input" type="checkbox" name="rr" {{#if permisos.rr}}checked{{/if}} ></td>
+                                    <td><input class="form-check-input" type="checkbox" name="rc" {{#if permisos.rc}}checked{{/if}} ></td>
+                                    <td><input class="form-check-input" type="checkbox" name="ru" {{#if permisos.ru}}checked{{/if}} ></td>
+                                    <td><input class="form-check-input" type="checkbox" name="rd" {{#if permisos.rd}}checked{{/if}} ></td>
+                                </tr>                                
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="adminSwitch" name="adminSwitch"  >
+                                        <label class="form-check-label" for="adminSwitch">Es administrador</label>
+                                    </div>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <button class="btn btn-primary float-end" type="submit">💾 Guardar</button>
+                    </form>
+                    {{/if_eq}}
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/javascripts/panelusers.js"></script>

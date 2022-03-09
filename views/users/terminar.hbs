@@ -1,0 +1,29 @@
+<div class="container text-center my-3">
+    <h1><strong>Finalizar tarea {{data.cliente}}</strong></h1>  
+    <form method="post" action="/users/terminar" class="form-group row">
+        <div class="col-10 input-group">
+            <label for="descripcion" class="col-form-label col-2 text-start">Tarea</label>
+            <input type="text" class="form-control txtblack" value="{{data.descripcionServicio}}" disabled>
+            <input type="text" name="id" value="{{data.id}}" hidden>
+        </div>
+        <div class="col-12 input-group">
+            <label for="hora" class="col-form-label col-2 text-start">Inicio</label>
+            <input type="text" class="form-control txtblack col-5" value="{{data.horaInicio}}" disabled>
+            <input type="text" class="form-control txtblack col-5" value="{{data.dia}}" disabled>
+        </div>
+        <div class="col-12 input-group">
+            <label for="hora" class="col-form-label col-2 text-start">Fin</label>
+            <input type="text" class="form-control txtblack col-5" id="horaFin" value="{{data.horaFin}}" disabled>
+            <input type="text" class="form-control txtblack col-5" id="fechaFin" value="{{data.diaFin}}" disabled>
+        </div>
+        <div class="col-12 mt-2">
+            <textarea class="form-control" name="observaciones" id="observaciones" rows="5" placeholder="Observaciones">{{data.observaciones}}</textarea>
+        </div>
+        <footer class="fixed-bottom mb-2">
+            <div class="d-grid gap-2">
+                <button class="btn btn-success" role="button">Finalizar</button>
+            </div>
+        </footer>
+    </form>
+</div>
+<script src="../javascripts/terminar.js"></script>

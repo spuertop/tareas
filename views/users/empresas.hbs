@@ -1,0 +1,16 @@
+<div class="container text-center my-3">
+    <h1><strong>Cliente</strong></h1>
+    <br>
+    <ul class="list-group">
+        {{#if nada}}
+        <h1>No hay empresas</h1>
+        {{else}}
+        {{#each data}}
+        <li class="list-group-item d-flex justify-content-between align-items-center m-1">
+            <h1>{{Empresa}}</h1>
+            <a href="/users/empresa?name={{Empresa}}"><button type="button" class="btn btn-success">Entrar</button></a>
+        </li>
+        {{/each}}
+        {{/if}}
+    </ul>
+</div>

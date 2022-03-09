@@ -1,0 +1,53 @@
+<div class="container text-center my-3">
+    <h1><strong>REGISTRAR TAREAS</strong></h1>
+    <ul id="ulUsers" class="list-group">
+        {{#if nada}}
+        {{else}}
+        <input class="list-group-item d-flex justify-content-between align-items-center m-1" type="text" id="search" onkeyup="searchUser()" placeholder="Teclea nombre...">
+        {{/if}}
+        {{#if nada}}
+        <h1>No hay usuarios</h1>
+        {{else}}
+        {{#if status}}
+        <div class="alert alert-dismissible alert-danger">
+            <a href="/"><button type="button" class="btn-close" data-bs-dismiss="alert"></button></a>
+            <strong>Opps!</strong> Contraseña incorrecta.
+        </div>
+        {{/if}}
+        {{#each data}}
+        <div>
+            <li class="list-group-item d-flex justify-content-between align-items-center m-1">
+                <h1>{{Nombre}}</h1>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{Usuario}}">
+                    Entrar
+                </button>
+                <!-- Modal -->
+                <div class="modal fade" id="{{Usuario}}" tabindex="-1" aria-labelledby="modal" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Hola {{Nombre}}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/signin" method="POST">
+                                    <div class="form-group">
+                                        <input name="user" type="hidden" value="{{Usuario}}">
+                                        <input name="pass" type="password" class="form-control" placeholder="Contraseña">
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                <button type="submit" class="btn btn-primary">Entrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </div>
+        {{/each}}
+        {{/if}}
+    </ul>
+</div>
+<script src="javascripts/index.js"></script>

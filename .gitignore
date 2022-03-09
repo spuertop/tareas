@@ -1,0 +1,4 @@
+/database/connection.js
+/databaseCrono/seq.conn.js
+/node_modules
+package-lock.json
