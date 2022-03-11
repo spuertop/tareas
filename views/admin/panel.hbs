@@ -1,9 +1,10 @@
 <div class="container mt-4">
   <div class="row">
-    {{!-- One card --}}
+    {{!-- Users card --}}
+    {{#if auths.ur}}
     <div class="col-sm-4">
       <a href="/admin/users" class="btn col-12">
-        <div class="card zoom">
+        <div class="card text-dark bg-light border-dark">
           <div class="card-body">
             <h1>🤓</h1>
             <h5 class="card-title">Usuarios</h5>
@@ -12,11 +13,12 @@
         </div>
       </a>
     </div>
-    {{!-- End One card --}}
-    {{!-- One card --}}
+    {{/if}}
+    {{!-- Calendar card --}}
+    {{#if auths.cr}}
     <div class="col-sm-4">
       <a href="holidays" class="btn col-12">
-        <div class="card zoom">
+        <div class="card text-dark bg-light border-dark">
           <div class="card-body">
             <h1>📆</h1>
             <h5 class="card-title">Calendario</h5>
@@ -25,11 +27,12 @@
         </div>
       </a>
     </div>
-    {{!-- End One card --}}
-    {{!-- One card --}}
+    {{/if}}
+    {{!-- Records card --}}
+    {{#if auths.rr}}
     <div class="col-sm-4">
       <a href="records" class="btn col-12">
-        <div class="card zoom">
+        <div class="card text-dark bg-light border-dark">
           <div class="card-body">
             <h1>📓</h1>
             <h5 class="card-title">Registros</h5>
@@ -38,8 +41,6 @@
         </div>
       </a>
     </div>
-    {{!-- End One card --}}
-
-
+    {{/if}}
   </div>
 </div>

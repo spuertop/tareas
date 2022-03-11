@@ -4,9 +4,9 @@ window.onload = function() {
         document.getElementById('search').focus();
         getAppiaUsers();
     });
-    let usernames = document.getElementById('usernames');
+/*     let usernames = document.getElementById('usernames');
     let buttons = usernames.querySelectorAll('button');
-
+ */
 }
 
 async function getAppiaUsers(){
@@ -18,9 +18,7 @@ async function getAppiaUsers(){
         text += `
         <button type="button" onclick="addThisUser('${names[i].Nombre}','${names[i].Usuario}')" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
             <div>${names[i].Nombre} (${names[i].Usuario})</div>
-            <div>
-                <span>➕</span>
-            </div>
+            <div><span>➕</span></div>
         </button>
         `
     }
@@ -42,10 +40,6 @@ async function deleteuser(id){
     await fetch('/admin/deleteuser?id='+id)
     .then(window.location.replace("/admin/users"))
     .catch(error=>console.log(error));
-}
-
-async function edituser(id){
-    null;
 }
 
 function searchUser() {

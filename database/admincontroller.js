@@ -5,7 +5,6 @@ const registro = require('../databaseCrono/model.registros');
 const festivos = require('../databaseCrono/model.festivos');
 const usuarios = require('../databaseCrono/model.usuarios');
 let hbsData = {layout:'adminlayoutnav'};
-//req.user es autor de la orden
 
 module.exports = {
     async getAllUsers(req, res) {
@@ -23,18 +22,20 @@ module.exports = {
                 let users = result.recordset;
                 hbsData.layout = 'adminlayout';
                 if (users.length == 0) {
-                    hbsData.nada = true;
-                    res.render('admin/index', hbsData);
+                    let hbsOut = {...hbsData};
+                    hbsOut.nada = true;
+                    res.render('admin/index', hbsOut);
                 } else {
-                    //res.render('admin/index', { layout: 'adminlayout', data: users, status: status});
-                    hbsData.data = users;
-                    hbsData.status = status;
-                    res.render('admin/index', hbsData);
+                    let hbsOut = {...hbsData};
+                    hbsOut.data = users;
+                    hbsOut.status = status;
+                    res.render('admin/index', hbsOut);
                 }
             } else {
-                hbsData.data = users;
-                hbsData.status = status;
-                res.render('admin/index', hbsData);
+                let hbsOut = {...hbsData};
+                hbsOut.data = users;
+                hbsOut.status = status;
+                res.render('admin/index', hbsOut);
             }
         } catch (error) {
             console.log(error)
@@ -55,7 +56,6 @@ module.exports = {
                 res.cookie('token', accessToken);
                 res.redirect('/admin/panel');
             } else {
-                //FIXME: modal de error si no coincide el pass
                 res.status(403);
                 res.redirect('/admin?status=403');
             }
@@ -75,31 +75,46 @@ module.exports = {
             if (decoded !== undefined) {
                 //console.log(decoded) //{user, ita, exp}
                 hbsData.layout = 'adminlayoutnav';
+                hbsData.person = decoded.user;
                 req.user = decoded.user;
                 req.id = decoded.id;
                 if (decoded.empresa) req.empresa = decoded.empresa;
-                next();
+                usuarios.findByPk(req.id)
+                    .then(author=>{
+                        hbsData.auths = author.permisos ? JSON.parse(author.permisos) : '';
+                        hbsData.esAdmin = author.esAdmin;
+                        hbsData.person = author.nombre + ' (' + hbsData.person + ')';
+                        console.log('Data postVerify', hbsData);
+                        next();
+                    })
             } else {
                 hbsData.layout = 'adminlayout';
+                hbsData.auths = '';
+                hbsData.esAdmin = false;
             }
         });
     },
-    //TODO: Filter by grants
+
+    //TODO: HBSDATA va con layout, person, auths, esAdmin
     async getPanelPage(req, res){
         res.render('admin/panel', hbsData);
     },
+
     async getUsersPage(req, res){
-        //Lista de usuarios registrados
+        isgranted('ur', res);
         let users = await usuarios.findAll({order:['nombre']});
         users.forEach(item =>{
             if(item.permisos){
                 item.permisos = JSON.parse(item.permisos)
             }
-        })
-        hbsData.users = users;
-        res.render('admin/users', hbsData);
+        });
+        let hbsOut = {...hbsData};
+        hbsOut.users = users;
+        res.render('admin/users', hbsOut);
     },
+    
     async appiaUsers(req, res){
+        isgranted('ur', res);
         let users = await usuarios.findAll({ attributes: ['usuario'] });
         let arrUsers = [];
         users.forEach(item => {arrUsers.push("'" + item.usuario + "'");})
@@ -110,30 +125,49 @@ module.exports = {
                 .query(`select Nombre, Usuario from APPIA_INFO.dbo.Usuarios where Usuario not in (${userList}) order by Nombre`);
                 res.json(result.recordset);
         } catch (error) {
-            console.log('AdminController 106', error)
+            console.log('AdminController ', error)
             res.sendStatus(500)
         }
     },
+
     async addnewuser(req, res){
-        //TODO: verificar permisos C en users
-        req.body.isAdmin = false;
+        isgranted('uc', res);
         await usuarios.create(req.body);
         res.sendStatus(200);
     },
+
     async deleteuserbyId(req, res){
-        //TODO: verificar permisos D en users
-        console.log('usuario peticion', req.user);
-        console.log('usuario peticion', req.id);
-        console.log('parametro peticion', req.query.id);
+        isgranted('ud', res);
         const result = await usuarios.destroy({where: {id:req.query.id}});
         result >= 1 ? res.sendStatus(200) : res.sendStatus(400);
     },
+
     async updateuser(req, res){
-        if(req.body.adminSwitch){
-            await usuarios.update({permisos: null, esAdmin: true}, {where:{id:req.params.id}});
+        isgranted('uu', res);
+        if(req.body.adminSwitch && hbsData.esAdmin == true){
+            await usuarios.update({permisos: JSON.stringify(todosLosPermisos()), esAdmin: true}, {where:{id:req.params.id}});
         } else {
             await usuarios.update({permisos: JSON.stringify(req.body)},{where:{id:req.params.id}});
         }
         res.redirect('/admin/users');
+    },
+
+}
+
+//Funciones auxiliares
+function todosLosPermisos(){
+    return {
+        ur : "on", uc : "on", uu : "on", ud: "on",
+        cr : "on", cc : "on", cu : "on", cd: "on", 
+        rr : "on", rc : "on", ru : "on", rd: "on", 
+    }
+}
+
+function isgranted(permiso, res) {
+    if(hbsData.auths[permiso]){
+        next();
+    } else {
+        res.status(404)
+        res.render('admin/404', hbsData);
     }
 }
