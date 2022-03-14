@@ -1,0 +1,22 @@
+<div class="container my-2">
+    <h1>📆 Calendario</h1>
+    <hr />
+    <div class="row">
+        <div class="col-md-6 col-xs-6">
+            <form class="form-group" id="addDaysForm" action="updateCalendar" method="POST">
+                <h4>Marca los días festivos</h4>
+                <div class="mb-3">
+                <input id="addDays" hidden class="calendar" placeholder="Selecciona los días..." name="range" />     </div>          
+                <button id="btnUpdateDays" type="submit" class="btn btn-primary">Actualizar días</button>
+            </form>
+        </div>
+        <div class="col"> 
+            <h5>Próximos festivos</h5>  
+            <ul id="list">
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="/javascripts/panelholidays.js"></script>

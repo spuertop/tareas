@@ -4,7 +4,9 @@ const jwt = require('jsonwebtoken');
 const registro = require('../databaseCrono/model.registros');
 const festivos = require('../databaseCrono/model.festivos');
 const usuarios = require('../databaseCrono/model.usuarios');
+const {Op} = require('sequelize');
 let hbsData = {layout:'adminlayoutnav'};
+//TODO: HBSDATA va con layout, person, auths, esAdmin después de verificar su identidad
 
 module.exports = {
     async getAllUsers(req, res) {
@@ -68,7 +70,6 @@ module.exports = {
         res.cookie('token', '');
         res.redirect('/admin');
     },
-
     isAuthenticated(req, res, next) {
         jwt.verify(req.cookies.token, cxn.accessToken, function(err, decoded) {
             if (err) res.redirect('/admin');
@@ -84,7 +85,7 @@ module.exports = {
                         hbsData.auths = author.permisos ? JSON.parse(author.permisos) : '';
                         hbsData.esAdmin = author.esAdmin;
                         hbsData.person = author.nombre + ' (' + hbsData.person + ')';
-                        console.log('Data postVerify', hbsData);
+                        //console.log('Data postVerify', hbsData);
                         next();
                     })
             } else {
@@ -94,12 +95,11 @@ module.exports = {
             }
         });
     },
-
-    //TODO: HBSDATA va con layout, person, auths, esAdmin
     async getPanelPage(req, res){
         res.render('admin/panel', hbsData);
     },
 
+    //MODULO USER
     async getUsersPage(req, res){
         isgranted('ur', res);
         let users = await usuarios.findAll({order:['nombre']});
@@ -152,6 +152,38 @@ module.exports = {
         res.redirect('/admin/users');
     },
 
+    //MODULO FESTIVOS
+    async getHolidaysPage(req, res){
+        isgranted('cr', res);
+        res.render('admin/holidays', hbsData);
+    },
+
+    async getCalendar(req, res){
+        isgranted('cr', res);
+        let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}, order: ['dia']})
+        res.json(dias);
+    },
+
+    async updateCalendar(req, res){
+        let reqDays = req.body.range.split(', ');
+        let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}});
+        let diasDB = [];
+        dias.forEach(item=>{diasDB.push(item.dia)});
+
+        let addDays = reqDays.filter(a =>{ return !diasDB.includes(a);});
+        let delDays = diasDB.filter(a=>{return !reqDays.includes(a)});
+        //console.log('add', addDays);
+        //console.log('del', delDays);
+
+        //Formateo de objetos para el insert
+        let addDaysOb = [];
+        addDays.forEach(item => {addDaysOb.push({dia: item, tipo: 'Festivo'});});
+
+        await festivos.bulkCreate(addDaysOb);
+        await festivos.destroy({where: { dia: delDays}});
+        res.redirect('/admin/holidays');
+    }
+
 }
 
 //Funciones auxiliares
@@ -164,10 +196,9 @@ function todosLosPermisos(){
 }
 
 function isgranted(permiso, res) {
-    if(hbsData.auths[permiso]){
-        next();
+    if(hbsData.auths[permiso] || hbsData.esAdmin == true){ 
     } else {
         res.status(404)
-        res.render('admin/404', hbsData);
-    }
+        res.render('admin/404', hbsData); 
+    } 
 }

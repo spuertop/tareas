@@ -4,9 +4,10 @@ window.onload = function() {
         document.getElementById('search').focus();
         getAppiaUsers();
     });
-/*     let usernames = document.getElementById('usernames');
+    /* 
+    let usernames = document.getElementById('usernames');
     let buttons = usernames.querySelectorAll('button');
- */
+     */
 }
 
 async function getAppiaUsers(){
@@ -32,13 +33,13 @@ function addThisUser(nombre, usuario) {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {'Content-Type': 'application/json'}
-    }).then(window.location.replace("/admin/users"))
+    }).then(location.reload(true))
       .catch(error=>console.log(error));
 }
 
 async function deleteuser(id){
     await fetch('/admin/deleteuser?id='+id)
-    .then(window.location.replace("/admin/users"))
+    .then(location.reload(true))
     .catch(error=>console.log(error));
 }
 

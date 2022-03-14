@@ -41,7 +41,6 @@ module.exports = {
                 res.cookie('token', accessToken);
                 res.redirect('/users/empresas');
             } else {
-                //FIXME: modal de error si no coincide el pass
                 res.status(403);
                 res.redirect('/?status=403');
             }
@@ -218,7 +217,12 @@ module.exports = {
 
         //Dia
         record.dia = new Date();
-        record.tipoDia = 'Laborable'; //TODO: buscar en DB
+        let tipoEnHolidays = await festivos.findOne({where: {dia: record.dia.toISOString().split('T')[0]}});
+        if(tipoEnHolidays){
+            record.tipoDia = tipoEnHolidays.tipo;
+        } else {
+            record.tipoDia = 'Laborable';            
+        }
         record.horaInicio = new Date();
         //record.horaFin;
         //record.duracion;
