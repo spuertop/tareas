@@ -11,8 +11,8 @@ module.exports = {
     setControlUsuario2: 'update APPIA_SQL.dbo.PackingList set ControlUsuario2= @usuario, ControlFecha2 = getdate() where Empresa = @Empresa and NumeroDePackingList = @PLE',
     setEstiloAE: `update APPIA_SQL.dbo.PackingList set Estilo = @Estilo where NumeroDePackingList = @NumeroDePackingList`,
 
-    getAllServicios: `SELECT CodigoDeServicio as Codigo,Descripcion1 as Descripcion,isnull(PrecioDeVentaDB1,0) as Precio,CodigoDeGrupo1 as Grupo FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeGrupo1 = @Empresa or CodigoDeGrupo1 = 'TODOS' order by Descripcion1`,
-    getServicioDescByPk: `select Descripcion1 FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeGrupo1 = @Empresa and CodigoDeServicio = @Codigo`,
-    getServicioPrecioByPk: `select isnull(PrecioDeVentaDB1,0) as Precio FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeGrupo1 = @Empresa and CodigoDeServicio = @Codigo`,
+    getAllServicios: `SELECT CodigoDeServicio as Codigo, Descripcion1 as Descripcion,isnull(PrecioDeVentaDB1,0) as Precio,CodigoDeGrupo1 as Grupo FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeGrupo1 = @Empresa or CodigoDeGrupo1 = 'TODOS' order by Descripcion1`,
+    getServicioDescByPk: `select Descripcion1 FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeServicio = @Codigo`,
+    getServicioPrecioByPk: `select isnull(PrecioDeVentaDB1,0) as Precio FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeServicio = @Codigo`,
     
 }

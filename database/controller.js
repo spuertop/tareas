@@ -149,11 +149,12 @@ module.exports = {
             let result = await pool.request()
                 .input('Empresa', empresa)
                 .query(queries.getAllServicios);
+            console.log(result.recordset);
             let servicios = result.recordset;
             data.servicios = servicios;
         } catch (error) {
             res.status(500)
-            res.send("getAllServicios" + error.message)
+            res.send("getAllServicios " + error.message)
         }
         res.render('users/servicios', {
             data: data
@@ -166,10 +167,11 @@ module.exports = {
         try {
             const pool = await cxn.getConnection();
             let result = await pool.request()
-                .input('Empresa', req.empresa)
+                //.input('Empresa', req.empresa)
                 .input('Codigo', data.servicio)
                 .query(queries.getServicioDescByPk);
             let desc = result.recordset;
+
             data.descripcion = desc[0].Descripcion1;
         } catch (error) {
             res.status(500)
@@ -206,7 +208,7 @@ module.exports = {
         try { 
             const pool = await cxn.getConnection();
             let result = await pool.request()
-                .input('Empresa', req.empresa)
+                //.input('Empresa', req.empresa)
                 .input('Codigo', req.body.servicio)
                 .query(queries.getServicioPrecioByPk);
             record.precioServicio = result.recordset[0].Precio;
