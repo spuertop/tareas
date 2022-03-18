@@ -101,89 +101,117 @@ module.exports = {
 
     //MODULO USER
     async getUsersPage(req, res){
-        isgranted('ur', res);
-        let users = await usuarios.findAll({order:['nombre']});
-        users.forEach(item =>{
-            if(item.permisos){
-                item.permisos = JSON.parse(item.permisos)
-            }
-        });
-        let hbsOut = {...hbsData};
-        hbsOut.users = users;
-        res.render('admin/users', hbsOut);
+        if(hbsData.auths['ur']){
+            let users = await usuarios.findAll({order:['nombre']});
+            users.forEach(item =>{
+                if(item.permisos){
+                    item.permisos = JSON.parse(item.permisos)
+                }
+            });
+            let hbsOut = {...hbsData};
+            hbsOut.users = users;
+            res.render('admin/users', hbsOut);    
+        } else {
+            res.status(403).render('admin/403', hbsData)
+        }
     },
     
     async appiaUsers(req, res){
-        isgranted('ur', res);
-        let users = await usuarios.findAll({ attributes: ['usuario'] });
-        let arrUsers = [];
-        users.forEach(item => {arrUsers.push("'" + item.usuario + "'");})
-        let userList = arrUsers.join(','); //Usuarios en panel
-        try {
-            const pool = await cxn.getUserConn();
-            const result = await pool.request()
-                .query(`select Nombre, Usuario from APPIA_INFO.dbo.Usuarios where Usuario not in (${userList}) order by Nombre`);
-                res.json(result.recordset);
-        } catch (error) {
-            console.log('AdminController ', error)
-            res.sendStatus(500)
+        if(hbsData.auths['ur']){
+            let users = await usuarios.findAll({ attributes: ['usuario'] });
+            let arrUsers = [];
+            users.forEach(item => {arrUsers.push("'" + item.usuario + "'");})
+            let userList = arrUsers.join(','); //Usuarios en panel
+            try {
+                const pool = await cxn.getUserConn();
+                const result = await pool.request()
+                    .query(`select Nombre, Usuario from APPIA_INFO.dbo.Usuarios where Usuario not in (${userList}) order by Nombre`);
+                    res.json(result.recordset);
+            } catch (error) {
+                console.log('AdminController ', error)
+                res.sendStatus(500)
+            }
+    
+        } else {
+            res.status(403).render('admin/403', hbsData)
         }
     },
 
     async addnewuser(req, res){
-        isgranted('uc', res);
-        await usuarios.create(req.body);
-        res.sendStatus(200);
+        if(hbsData.auths['uc']){
+            await usuarios.create(req.body);
+            res.sendStatus(200);
+        } else {
+            res.status(403).render('admin/403', hbsData)
+        }
     },
 
     async deleteuserbyId(req, res){
-        isgranted('ud', res);
-        const result = await usuarios.destroy({where: {id:req.query.id}});
-        result >= 1 ? res.sendStatus(200) : res.sendStatus(400);
+        if(hbsData.auths['ud']){
+            const result = await usuarios.destroy({where: {id:req.query.id}});
+            result >= 1 ? res.sendStatus(200) : res.sendStatus(400);    
+        } else {
+            res.status(403).render('admin/403', hbsData)
+        }
     },
 
     async updateuser(req, res){
-        isgranted('uu', res);
-        if(req.body.adminSwitch && hbsData.esAdmin == true){
-            await usuarios.update({permisos: JSON.stringify(todosLosPermisos()), esAdmin: true}, {where:{id:req.params.id}});
+        if(hbsData.auths['uu']){
+            if(req.body.adminSwitch && hbsData.esAdmin == true){
+                await usuarios.update({permisos: JSON.stringify(todosLosPermisos()), esAdmin: true}, {where:{id:req.params.id}});
+            } else {
+                await usuarios.update({permisos: JSON.stringify(req.body)},{where:{id:req.params.id}});
+            }
+            res.redirect('/admin/users');    
         } else {
-            await usuarios.update({permisos: JSON.stringify(req.body)},{where:{id:req.params.id}});
+            res.status(403).render('admin/403', hbsData)
         }
-        res.redirect('/admin/users');
     },
 
     //MODULO FESTIVOS
     async getHolidaysPage(req, res){
-        isgranted('cr', res);
-        res.render('admin/holidays', hbsData);
+        if(hbsData.auths['cr']){
+            res.render('admin/holidays', hbsData);
+        } else {
+            res.status(403).render('admin/403', hbsData)
+        }
     },
 
     async getCalendar(req, res){
-        isgranted('cr', res);
-        let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}, order: ['dia']})
-        res.json(dias);
+        if(hbsData.auths['cr']){
+            let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}, order: ['dia']})
+            res.json(dias);            
+        } else {
+            res.status(403).render('admin/403', hbsData)
+        }
     },
 
     async updateCalendar(req, res){
-        let reqDays = req.body.range.split(', ');
-        let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}});
-        let diasDB = [];
-        dias.forEach(item=>{diasDB.push(item.dia)});
+        if(hbsData.auths['cc'] || hbsData.auths['cd']){
+            let reqDays = req.body.range.split(', ');
+            let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}});
+            let diasDB = [];
+            dias.forEach(item=>{diasDB.push(item.dia)});
+            let addDays = reqDays.filter(a =>{ return !diasDB.includes(a);});
+            let delDays = diasDB.filter(a=>{return !reqDays.includes(a)});
+            let addDaysOb = [];
+            addDays.forEach(item => {addDaysOb.push({dia: item, tipo: 'Festivo'});});
+            await festivos.bulkCreate(addDaysOb);
+            await festivos.destroy({where: { dia: delDays}});
+            res.redirect('/admin/holidays');    
+        } else {
+            res.status(403).render('admin/403', hbsData)
+        }
+    },
 
-        let addDays = reqDays.filter(a =>{ return !diasDB.includes(a);});
-        let delDays = diasDB.filter(a=>{return !reqDays.includes(a)});
-        //console.log('add', addDays);
-        //console.log('del', delDays);
-
-        //Formateo de objetos para el insert
-        let addDaysOb = [];
-        addDays.forEach(item => {addDaysOb.push({dia: item, tipo: 'Festivo'});});
-
-        await festivos.bulkCreate(addDaysOb);
-        await festivos.destroy({where: { dia: delDays}});
-        res.redirect('/admin/holidays');
+    //MODULO REGISTROS
+    async getRecordsPage(req, res){
+        if(hbsData.auths['rr']){
+            res.render('admin/records', hbsData);
+        } else {
+            res.status(403).render('admin/403', hbsData)
+        }
     }
-
 }
 
 //Funciones auxiliares
@@ -195,10 +223,8 @@ function todosLosPermisos(){
     }
 }
 
-function isgranted(permiso, res) {
-    if(hbsData.auths[permiso] || hbsData.esAdmin == true){ 
-    } else {
-        res.status(404)
-        res.render('admin/404', hbsData); 
-    } 
-}
+//snippet permisos
+//if(hbsData.auths['cc']){
+//} else {
+    //res.status(403).render('admin/403', hbsData)
+//}

@@ -20,4 +20,6 @@ router.get('/holidays', con.getHolidaysPage);
 router.get('/calendar', con.getCalendar);
 router.post('/updateCalendar', con.updateCalendar);
 
+router.get('/records', con.getRecordsPage);
+
 module.exports = router;

@@ -7,7 +7,10 @@
                 <h4>Marca los días festivos</h4>
                 <div class="mb-3">
                 <input id="addDays" hidden class="calendar" placeholder="Selecciona los días..." name="range" />     </div>          
-                <button id="btnUpdateDays" type="submit" class="btn btn-primary">Actualizar días</button>
+                <button id="btnUpdateDays" type="submit" class="btn btn-primary"
+                {{#if auths.cc}}{{else}}disabled{{/if}}
+                {{#if auths.cd}}{{else}}disabled{{/if}}
+                >Añadir y borrar</button>
             </form>
         </div>
         <div class="col"> 
