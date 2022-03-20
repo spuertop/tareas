@@ -144,12 +144,23 @@ module.exports = {
             user,
             empresa
         };
+        //Empresa is operator
+        let tipoempresa = 0;
         try {
+            const pool = await cxn.getConnection();
+            tipoempresa = (await pool.request()
+                .input('empresa', empresa)
+                .query(queries.getEmpresaTipo)).recordset[0].tipodeempresa;
+        } catch (error) {
+            res.status(500)
+            res.send("getAllServicios " + error.message)
+        }
+        try {
+            //let queryS = ;
             const pool = await cxn.getConnection();
             let result = await pool.request()
                 .input('Empresa', empresa)
-                .query(queries.getAllServicios);
-            console.log(result.recordset);
+                .query(tipoempresa == 2 ? queries.getAllServiciosOperator : queries.getAllServicios);
             let servicios = result.recordset;
             data.servicios = servicios;
         } catch (error) {

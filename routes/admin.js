@@ -10,16 +10,16 @@ router.use(con.isAuthenticated);
 router.get('/salir', con.logout);
 router.get('/panel', con.getPanelPage);
 
-router.get('/users', con.getUsersPage);
-router.get('/appiausers', con.appiaUsers);
-router.post('/addnewuser', con.addnewuser);
-router.get('/deleteuser', con.deleteuserbyId);
-router.post('/updateuser/:id', con.updateuser);
+router.get('/users', con.checkP('ur'), con.getUsersPage);
+router.get('/appiausers', con.checkP('ur'), con.appiaUsers); 
+router.post('/addnewuser', con.checkP('uc'), con.addnewuser); 
+router.get('/deleteuser', con.checkP('ud'), con.deleteuserbyId);
+router.post('/updateuser/:id', con.checkP('uu'), con.updateuser);
 
-router.get('/holidays', con.getHolidaysPage);
-router.get('/calendar', con.getCalendar);
-router.post('/updateCalendar', con.updateCalendar);
+router.get('/holidays', con.checkP('cr'), con.getHolidaysPage);
+router.get('/calendar', con.checkP('cr'), con.getCalendar); //cr
+router.post('/updateCalendar', con.checkP('cc'), con.checkP('cd'), con.updateCalendar);
 
-router.get('/records', con.getRecordsPage);
+router.get('/records', con.checkP('rr'), con.getRecordsPage); //rr
 
 module.exports = router;

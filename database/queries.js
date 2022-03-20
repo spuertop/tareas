@@ -12,7 +12,10 @@ module.exports = {
     setEstiloAE: `update APPIA_SQL.dbo.PackingList set Estilo = @Estilo where NumeroDePackingList = @NumeroDePackingList`,
 
     getAllServicios: `SELECT CodigoDeServicio as Codigo, Descripcion1 as Descripcion,isnull(PrecioDeVentaDB1,0) as Precio,CodigoDeGrupo1 as Grupo FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeGrupo1 = @Empresa or CodigoDeGrupo1 = 'TODOS' order by Descripcion1`,
+    getAllServiciosOperator: `SELECT CodigoDeServicio as Codigo, Descripcion1 as Descripcion,isnull(PrecioDeVentaDB1,0) as Precio,CodigoDeGrupo1 as Grupo FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeGrupo1 = @Empresa order by Descripcion1`,
+    getEmpresaTipo: `select tipodeempresa from APPIA_SQL.dbo.CopiaDeEmpresas where Empresa = @empresa`,
     getServicioDescByPk: `select Descripcion1 FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeServicio = @Codigo`,
     getServicioPrecioByPk: `select isnull(PrecioDeVentaDB1,0) as Precio FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeServicio = @Codigo`,
+
     
 }

@@ -1,7 +1,7 @@
 const cxn = require('./connection');
 const queries = require('./queries');
 const jwt = require('jsonwebtoken');
-const registro = require('../databaseCrono/model.registros');
+const registros = require('../databaseCrono/model.registros');
 const festivos = require('../databaseCrono/model.festivos');
 const usuarios = require('../databaseCrono/model.usuarios');
 const {Op} = require('sequelize');
@@ -95,122 +95,124 @@ module.exports = {
             }
         });
     },
+    checkP(permiso){
+        return function(req, res, next){
+            if(hbsData.auths[permiso]){
+                next();
+            } else {
+                res.status(403).render('admin/403', hbsData)
+            }
+        }
+    },
     async getPanelPage(req, res){
         res.render('admin/panel', hbsData);
     },
 
     //MODULO USER
     async getUsersPage(req, res){
-        if(hbsData.auths['ur']){
-            let users = await usuarios.findAll({order:['nombre']});
-            users.forEach(item =>{
-                if(item.permisos){
-                    item.permisos = JSON.parse(item.permisos)
-                }
-            });
-            let hbsOut = {...hbsData};
-            hbsOut.users = users;
-            res.render('admin/users', hbsOut);    
-        } else {
-            res.status(403).render('admin/403', hbsData)
-        }
+        let users = await usuarios.findAll({order:['nombre']});
+        users.forEach(item =>{
+            if(item.permisos){
+                item.permisos = JSON.parse(item.permisos)
+            }
+        });
+        let hbsOut = {...hbsData};
+        hbsOut.users = users;
+        res.render('admin/users', hbsOut);    
     },
     
     async appiaUsers(req, res){
-        if(hbsData.auths['ur']){
-            let users = await usuarios.findAll({ attributes: ['usuario'] });
-            let arrUsers = [];
-            users.forEach(item => {arrUsers.push("'" + item.usuario + "'");})
-            let userList = arrUsers.join(','); //Usuarios en panel
-            try {
-                const pool = await cxn.getUserConn();
-                const result = await pool.request()
-                    .query(`select Nombre, Usuario from APPIA_INFO.dbo.Usuarios where Usuario not in (${userList}) order by Nombre`);
-                    res.json(result.recordset);
-            } catch (error) {
-                console.log('AdminController ', error)
-                res.sendStatus(500)
-            }
-    
-        } else {
-            res.status(403).render('admin/403', hbsData)
+        let users = await usuarios.findAll({ attributes: ['usuario'] });
+        let arrUsers = [];
+        users.forEach(item => {arrUsers.push("'" + item.usuario + "'");})
+        let userList = arrUsers.join(','); //Usuarios en panel
+        try {
+            const pool = await cxn.getUserConn();
+            const result = await pool.request()
+                .query(`select Nombre, Usuario from APPIA_INFO.dbo.Usuarios where Usuario not in (${userList}) order by Nombre`);
+                res.json(result.recordset);
+        } catch (error) {
+            console.log('AdminController ', error)
+            res.sendStatus(500)
         }
     },
 
     async addnewuser(req, res){
-        if(hbsData.auths['uc']){
-            await usuarios.create(req.body);
-            res.sendStatus(200);
-        } else {
-            res.status(403).render('admin/403', hbsData)
-        }
+        await usuarios.create(req.body);
+        res.sendStatus(200);
     },
 
     async deleteuserbyId(req, res){
-        if(hbsData.auths['ud']){
-            const result = await usuarios.destroy({where: {id:req.query.id}});
-            result >= 1 ? res.sendStatus(200) : res.sendStatus(400);    
-        } else {
-            res.status(403).render('admin/403', hbsData)
-        }
+        const result = await usuarios.destroy({where: {id:req.query.id}});
+        result >= 1 ? res.sendStatus(200) : res.sendStatus(400);    
     },
 
     async updateuser(req, res){
-        if(hbsData.auths['uu']){
-            if(req.body.adminSwitch && hbsData.esAdmin == true){
-                await usuarios.update({permisos: JSON.stringify(todosLosPermisos()), esAdmin: true}, {where:{id:req.params.id}});
-            } else {
-                await usuarios.update({permisos: JSON.stringify(req.body)},{where:{id:req.params.id}});
-            }
-            res.redirect('/admin/users');    
+        if(req.body.adminSwitch && hbsData.esAdmin == true){
+            await usuarios.update({permisos: JSON.stringify(todosLosPermisos()), esAdmin: true}, {where:{id:req.params.id}});
         } else {
-            res.status(403).render('admin/403', hbsData)
+            await usuarios.update({permisos: JSON.stringify(req.body)},{where:{id:req.params.id}});
         }
+        res.redirect('/admin/users');    
     },
 
     //MODULO FESTIVOS
     async getHolidaysPage(req, res){
-        if(hbsData.auths['cr']){
-            res.render('admin/holidays', hbsData);
-        } else {
-            res.status(403).render('admin/403', hbsData)
-        }
+        res.render('admin/holidays', hbsData);
     },
 
     async getCalendar(req, res){
-        if(hbsData.auths['cr']){
-            let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}, order: ['dia']})
-            res.json(dias);            
-        } else {
-            res.status(403).render('admin/403', hbsData)
-        }
+        let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}, order: ['dia']})
+        res.json(dias);            
     },
 
     async updateCalendar(req, res){
-        if(hbsData.auths['cc'] || hbsData.auths['cd']){
-            let reqDays = req.body.range.split(', ');
-            let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}});
-            let diasDB = [];
-            dias.forEach(item=>{diasDB.push(item.dia)});
-            let addDays = reqDays.filter(a =>{ return !diasDB.includes(a);});
-            let delDays = diasDB.filter(a=>{return !reqDays.includes(a)});
-            let addDaysOb = [];
-            addDays.forEach(item => {addDaysOb.push({dia: item, tipo: 'Festivo'});});
-            await festivos.bulkCreate(addDaysOb);
-            await festivos.destroy({where: { dia: delDays}});
-            res.redirect('/admin/holidays');    
-        } else {
-            res.status(403).render('admin/403', hbsData)
-        }
+        let reqDays = req.body.range.split(', ');
+        let dias = await festivos.findAll({where: { dia :{[Op.gt]: new Date()}}});
+        let diasDB = [];
+        dias.forEach(item=>{diasDB.push(item.dia)});
+        let addDays = reqDays.filter(a =>{ return !diasDB.includes(a);});
+        let delDays = diasDB.filter(a=>{return !reqDays.includes(a)});
+        let addDaysOb = [];
+        addDays.forEach(item => {addDaysOb.push({dia: item, tipo: 'Festivo'});});
+        await festivos.bulkCreate(addDaysOb);
+        await festivos.destroy({where: { dia: delDays}});
+        res.redirect('/admin/holidays');    
     },
 
     //MODULO REGISTROS
     async getRecordsPage(req, res){
-        if(hbsData.auths['rr']){
-            res.render('admin/records', hbsData);
-        } else {
-            res.status(403).render('admin/403', hbsData)
+        let hbsOut = {...hbsData};
+        //En este momento
+        let usuariosAppia;
+        try {
+            const pool = await cxn.getUserConn();
+            usuariosAppia = (await pool.request().query(queries.getAllUsers)).recordset;
+        } catch (error) {
+            res.sendStatus(500)
         }
+        let ahoramismo = await registros.findAll({where: {horaFin: null}});
+        ahoramismo.forEach(item=>{item.horaInicio = item.horaInicio.toLocaleString()})
+        //Usuario -- codigoUsuario
+        for(let i = 0; i < usuariosAppia.length; i++){
+            let userEnahora = ahoramismo.filter(obj => {
+                return obj.codigoUsuario == usuariosAppia[i].Usuario;
+            });
+            userEnahora[0] ? usuariosAppia[i].last = userEnahora[0] : null;
+        }
+        hbsOut.now = usuariosAppia;
+
+        //Ultimas finalizadas
+        let last = await registros.findAll({limit: 50, order: [['horaFin', 'asc']], where: { horaFin:{[Op.ne]: null}}});
+        last.forEach(item=>{
+            item.horaInicio = item.horaInicio.toLocaleTimeString(); 
+            item.horaFin = item.horaFin.toLocaleTimeString();
+            item.duracion = item.duracion.toFixed(3) + ' horas';
+        });
+        hbsOut.last = last;
+        console.log(hbsOut.last);
+        res.render('admin/records', hbsOut);
+
     }
 }
 
