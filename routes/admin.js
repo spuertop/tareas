@@ -17,9 +17,9 @@ router.get('/deleteuser', con.checkP('ud'), con.deleteuserbyId);
 router.post('/updateuser/:id', con.checkP('uu'), con.updateuser);
 
 router.get('/holidays', con.checkP('cr'), con.getHolidaysPage);
-router.get('/calendar', con.checkP('cr'), con.getCalendar); //cr
+router.get('/calendar', con.checkP('cr'), con.getCalendar);
 router.post('/updateCalendar', con.checkP('cc'), con.checkP('cd'), con.updateCalendar);
 
-router.get('/records', con.checkP('rr'), con.getRecordsPage); //rr
+router.get('/records', con.checkP('rr'), con.getRecordsPage);
 
 module.exports = router;
