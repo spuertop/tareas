@@ -1,9 +1,11 @@
 <div class="container text-center my-3">
-    <h1><strong>Empezar tarea {{data.empresa}}</strong></h1>  
+    <h1><strong>Empezar tarea {{data.empresa}}</strong></h1>
+    <hr>
     <form method="post" action="/users/empezar" class="form-group row">
-        <div class="col-10 input-group">
-            <label for="descripcion" class="col-form-label col-2 text-start">Tarea</label>
-            <input type="text" class="form-control txtblack" {{!-- id="servicio" name="descripcion" --}} value="{{data.descripcion}}" disabled>
+        <div class="col-12 input-group">
+            {{!-- <label for="descripcion" class="col-form-label col-2 text-start">Tarea</label>
+            <input type="text" class="form-control txtblack" value="{{data.descripcion}}" disabled> --}}
+            <h3>Tarea: {{data.descripcion}}</h3>
             <input type="text" name="servicio" value="{{data.servicio}}" hidden>
             <input type="text" name="descripcion" value="{{data.descripcion}}" hidden>
         </div>
