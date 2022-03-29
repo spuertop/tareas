@@ -203,13 +203,15 @@ module.exports = {
         hbsOut.now = usuariosAppia;
 
         //Ultimas finalizadas
-        let last = await registros.findAll({limit: 50, order: [['horaFin', 'asc']], where: { horaFin:{[Op.ne]: null}}});
+        //limit: 50, where: { horaFin:{[Op.ne]: null}}
+        //let last = await registros.findAll({ order: [['createdAt', 'DESC']], });
+        //let last = await registros.findAll({order: ['id']});
         last.forEach(item=>{
             item.horaInicio = item.horaInicio.toLocaleTimeString(); 
             item.horaFin = item.horaFin.toLocaleTimeString();
             item.duracion = item.duracion.toFixed(3) + ' horas';
         });
-        hbsOut.last = last;
+        //hbsOut.last = last;
         console.log(hbsOut.last);
         res.render('admin/records', hbsOut);
 

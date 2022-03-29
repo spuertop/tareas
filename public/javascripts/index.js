@@ -8,6 +8,25 @@ window.onload = function() {
   
 }
 
+function signinPost(usuario) {
+    let inputs = usuario.querySelectorAll('input');
+    let data = { user : inputs[0].value, pass : inputs[1].value};
+    fetch('/signin', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        redirect: 'follow'
+    })
+    .then(res => {
+        if(res.redirected){}
+            window.location.href = res.url;
+    })
+    .catch(error => console.error('Error:', error))
+
+}
+
 function searchUser() {
     var input, filter, ul, li, a, i, txtValue;
     input = document.getElementById('search');

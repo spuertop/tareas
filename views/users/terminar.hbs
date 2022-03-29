@@ -9,13 +9,18 @@
         </div>
         <div class="col-12 input-group">
             <label for="hora" class="col-form-label col-2 text-start">Inicio</label>
-            <input type="text" class="form-control txtblack col-5" value="{{data.horaInicio}}" disabled>
-            <input type="text" class="form-control txtblack col-5" value="{{data.dia}}" disabled>
+            <input type="text" class="form-control txtblack col-5" id="horaInicio" value="{{data.horaInicio}}" disabled>
+            <input type="text" class="form-control txtblack col-5" id="fechaInicio" value="{{data.dia}}" disabled>
         </div>
         <div class="col-12 input-group">
             <label for="hora" class="col-form-label col-2 text-start">Fin</label>
             <input type="text" class="form-control txtblack col-5" id="horaFin" value="{{data.horaFin}}" disabled>
             <input type="text" class="form-control txtblack col-5" id="fechaFin" value="{{data.diaFin}}" disabled>
+        </div>
+        <div class="col-12 input-group">
+            <label class="col-form-label col-4 text-start">Tiempo empleado:</label>
+            <label id="duracion" class="col-form-label col-4 text-start"></label>
+            
         </div>
         <div class="col-12 mt-2">
             <textarea class="form-control" name="observaciones" id="observaciones" rows="5" placeholder="Observaciones">{{data.observaciones}}</textarea>

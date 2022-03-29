@@ -33,13 +33,13 @@
                                 <form action="/signin" method="POST">
                                     <div class="form-group">
                                         <input name="user" type="hidden" value="{{Usuario}}">
-                                        <input name="pass" type="password" class="form-control" placeholder="Contraseña">
+                                        <input name="pass" id="pass{{Usuario}}" type="password" class="form-control" placeholder="Contraseña">
                                     </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                <button type="submit" class="btn btn-primary">Entrar</button>
+                                <button onclick="signinPost({{Usuario}})" class="btn btn-primary">Entrar</button>
                             </div>
                         </div>
                     </div>
