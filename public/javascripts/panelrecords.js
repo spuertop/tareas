@@ -24,6 +24,12 @@ async function getAppiaUsers(){
     usersDiv.innerHTML = text;
 }
 
+async function delRecord(id){
+    await fetch('/admin/delRecord?id='+id)
+    .then(location.reload(true))
+    .catch(error=>console.log(error));
+}
+
 function addThisUser(nombre, usuario) {
     let data = {nombre, usuario};
     fetch('/admin/addnewuser', {

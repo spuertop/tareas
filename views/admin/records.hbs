@@ -88,21 +88,22 @@
                         <thead class="table-dark">
                             <tr>
                                 <th class="col-2" scope="col">Empleado</th>
-                                <th class="col-2" scope="col">Empresa</th>
+                                <th class="col-1" scope="col">Empresa</th>
                                 <th class="col-4" scope="col">Tarea</th>
-                                <th class="col-2" scope="col">Inicio - Fin</th>
+                                <th class="col-2" scope="col">{{!-- Inicio -  --}}Fin</th>
                                 <th class="col-2" scope="col">Horas</th>
+                                <th scope="col"></th>
                             </tr>
                         </thead>
                         <tbody>
                             {{#each last}}
                             <tr>
-                                <th scope="col">{{nombreUsuario}} ({{codigoUsuario}})</th>
+                                <th scope="col">{{nombreUsuario}} {{!-- ({{codigoUsuario}}) --}}</th>
                                 <td>{{cliente}}</td> 
                                 <td>{{descripcionServicio}}</td>
-                                <td>{{horaInicio}} - {{horaFin}}</td>
+                                <td>{{!-- {{horaInicio}} -  --}}{{horaFin}}</td>
                                 <td>{{duracion}}</td>
-                                <td>{{id}}</td>
+                                <td><span onclick="delRecord({{id}})">🗑️</span></td>
                             </tr>
                             {{/each}}
                         </tbody>

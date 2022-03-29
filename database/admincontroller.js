@@ -203,16 +203,21 @@ module.exports = {
         hbsOut.now = usuariosAppia;
 
         //Ultimas finalizadas
-        let last = await registros.findAll({ order: [['createdAt', 'DESC']], where: { horaFin:{[Op.ne]: null}}});
+        let last = await registros.findAll({ limit: 20, order: [['updatedAt', 'DESC']], where: { horaFin:{[Op.ne]: null}}});
         last.forEach(item=>{
             item.horaInicio = item.horaInicio.toLocaleTimeString(); 
             item.horaFin = item.horaFin.toLocaleTimeString();
             item.duracion = item.duracion.toFixed(3) + ' horas';
         });
         hbsOut.last = last;
-        console.log(hbsOut.last);
+        //console.log(hbsOut.last);
         res.render('admin/records', hbsOut);
 
+    },
+
+    async deleteRecordbyId(req, res){
+        const result = await registros.destroy({where: {id:req.query.id}});
+        result >= 1 ? res.sendStatus(200) : res.sendStatus(400);  
     }
 }
 

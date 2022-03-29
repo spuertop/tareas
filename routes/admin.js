@@ -21,5 +21,6 @@ router.get('/calendar', con.checkP('cr'), con.getCalendar);
 router.post('/updateCalendar', con.checkP('cc'), con.checkP('cd'), con.updateCalendar);
 
 router.get('/records', con.checkP('rr'), con.getRecordsPage);
+router.get('/delRecord', con.checkP('rd'), con.deleteRecordbyId);
 
 module.exports = router;
