@@ -20,8 +20,7 @@ function signinPost(usuario) {
         redirect: 'follow'
     })
     .then(res => {
-        if(res.redirected){}
-            window.location.href = res.url;
+        window.location.href = res.url;
     })
     .catch(error => console.error('Error:', error))
 

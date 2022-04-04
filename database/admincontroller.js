@@ -205,19 +205,127 @@ module.exports = {
         //Ultimas finalizadas
         let last = await registros.findAll({ limit: 20, order: [['updatedAt', 'DESC']], where: { horaFin:{[Op.ne]: null}}});
         last.forEach(item=>{
-            item.horaInicio = item.horaInicio.toLocaleTimeString(); 
-            item.horaFin = item.horaFin.toLocaleTimeString();
-            item.duracion = item.duracion.toFixed(3) + ' horas';
+            item.dia = item.horaInicio.toLocaleDateString([], {year: 'numeric', month: '2-digit', day:'2-digit'});
+            item.horaInicio = item.horaInicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            item.horaFin = item.horaFin.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            item.duracion = item.duracion.toFixed(2) + ' h';
         });
         hbsOut.last = last;
-        //console.log(hbsOut.last);
-        res.render('admin/records', hbsOut);
 
+        //Empresas dentro de last para el select de editar
+        const pool = await cxn.getUserConn();
+        let result = await pool.request().query(queries.getAllEmpresas);
+        let empresas = result.recordset; //[{Empresa: 'xx'},{}]
+        hbsOut.empresas = empresas;
+        
+        res.render('admin/records', hbsOut);
     },
 
     async deleteRecordbyId(req, res){
         const result = await registros.destroy({where: {id:req.query.id}});
         result >= 1 ? res.sendStatus(200) : res.sendStatus(400);  
+    },
+
+    async getEmpresasJson(req, res){
+        try {
+            const pool = await cxn.getUserConn();
+            let result = await pool.request().query(queries.getAllEmpresas);
+            let empresas = result.recordset;
+            res.json(empresas);
+        } catch (error) {
+            res.status(500)
+            res.send(error.message)
+        }
+    },
+
+    async getServiciosDeUnaEmpresaJson(req, res){
+        let empresa = req.params.empresa;
+        let tipoempresa = 0;
+        try {
+            const pool = await cxn.getConnection();
+            tipoempresa = (await pool.request()
+                .input('empresa', empresa)
+                .query(queries.getEmpresaTipo)).recordset[0].tipodeempresa;
+        } catch (error) {
+            res.status(500)
+        }
+        try {
+            //let queryS = ;
+            const pool = await cxn.getConnection();
+            let result = await pool.request()
+                .input('Empresa', empresa)
+                .query(tipoempresa == 2 ? queries.getAllServiciosOperator : queries.getAllServicios);
+            let servicios = result.recordset;
+            res.json(servicios);
+        } catch (error) {
+            res.status(500)
+        }
+    },
+
+    async updateRecordById(req, res){
+        /* {cliente: 'MOLDS',
+        descripcionServicio: 'MDK06',
+        dia: '2022-04-09',
+        horaInicio: '16:27',
+        horaFin: '18:27'
+        } */
+        console.log('Body', req.body)
+
+        let record = {};
+        //[cliente]
+        record.cliente = req.body.cliente;
+
+        //,[codigoServicio]
+        //,[descripcionServicio]
+        //,[precioServicio]
+        let codigoS = req.body.descripcionServicio;
+        try { 
+            const pool = await cxn.getConnection();
+            let result = await pool.request()
+                .input('Codigo', codigoS)
+                .query(queries.getServicioByPk);
+            record.codigoServicio = codigoS;
+            record.descripcionServicio = result.recordset[0].Descripcion1;
+            record.precioServicio = result.recordset[0].Precio;
+            console.log('RecordSet servicio',result.recordset[0])
+        } catch (error) {
+            res.status(500)
+            res.send("Fallo recuperando precio del servicio");
+        }
+
+        //,[dia]
+        record.dia = new Date(req.body.dia);
+        
+        //,[tipoDia]
+        //Revisar si el día es festivo y setearlo
+        let tipoEnHolidays = await festivos.findOne({where: {dia: req.body.dia}});
+        if(tipoEnHolidays){
+            console.log('tipoEnHolidays',tipoEnHolidays);
+            record.tipoDia = tipoEnHolidays.tipo;
+        } else {
+            record.tipoDia = 'Laborable';            
+        }
+
+        //,[horaInicio]
+        record.horaInicio = new Date(req.body.dia + ' ' + req.body.horaInicio);
+        //,[horaFin]
+        record.horaFin = new Date(req.body.dia + ' ' + req.body.horaFin);
+        //,[duracion]
+        record.duracion = (record.horaFin - record.horaInicio)/3600000; //da integer en milisegundos y dividismo para tener horas
+        //,[importe]
+        record.importe = record.duracion * record.precioServicio;
+        //,[observaciones]
+        record.observaciones = req.body.observaciones;
+
+        if(record.duracion <= 0){
+            res.status(500)
+            res.send("Hora de fin no puede ser anterior a hora de inicio");
+        } else {
+            let registroAactualizar = await registros.findByPk(req.params.id, {raw: false});
+            registroAactualizar.update(record);
+            await registroAactualizar.save();
+            res.redirect('/admin/records');
+        }
     }
 }
 
@@ -229,9 +337,3 @@ function todosLosPermisos(){
         rr : "on", rc : "on", ru : "on", rd: "on", 
     }
 }
-
-//snippet permisos
-//if(hbsData.auths['cc']){
-//} else {
-    //res.status(403).render('admin/403', hbsData)
-//}

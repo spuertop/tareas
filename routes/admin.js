@@ -22,5 +22,8 @@ router.post('/updateCalendar', con.checkP('cc'), con.checkP('cd'), con.updateCal
 
 router.get('/records', con.checkP('rr'), con.getRecordsPage);
 router.get('/delRecord', con.checkP('rd'), con.deleteRecordbyId);
+router.get('/getEmpresasJson', con.getEmpresasJson);
+router.get('/getServicios/:empresa', con.getServiciosDeUnaEmpresaJson);
+router.post('/updateRecord/:id', con.updateRecordById)
 
 module.exports = router;

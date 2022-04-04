@@ -46,6 +46,29 @@ async function deleteuser(id){
     .catch(error=>console.log(error));
 }
 
+function nowUserSearch(){
+    let input, filter, ul, li, a, i, txtValue;
+    input = document.getElementById('nowUserSearch');
+    filter = input.value.toUpperCase();
+    //console.log(filter);
+    ul = document.getElementById("nowTable");
+    li = ul.getElementsByTagName("tr");
+
+    for (i = 0; i < li.length; i++) {
+        a = li[i].getElementsByTagName("th")[0];
+        txtValue = a.innerText;
+        //console.log(txtValue);
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            //li[i].classList.add("d-flex");
+            li[i].style.display = "";
+        } else {
+            //li[i].classList.remove("d-flex");
+            li[i].style.display = "none";
+            
+        }
+    }
+}
+
 function searchUser() {
     let input, filter, ul, li, a, i, txtValue;
     input = document.getElementById('search');
@@ -67,4 +90,38 @@ function searchUser() {
             
         }
     }
-}  
+} 
+
+function sinServiciosCargados(e, empresa){
+    if(e.target.length == 1) {
+        fetch('/admin/getServicios/'+empresa)
+        .then(res=>res.json())
+        .then(json=>{
+            for(item in json){
+                let option = document.createElement("option");
+                option.text = json[item].Descripcion;
+                option.value = json[item].Codigo;
+                e.target.appendChild(option);
+            }
+        })
+    }
+}
+
+function cargarServicios(e){
+    let empresa = e.target.options[e.target.selectedIndex].text;
+    console.log(empresa)
+    let id = e.target.getAttribute('id2');
+    let selectServicios = document.getElementById('editDescripcionServicio_'+id);
+    fetch('/admin/getServicios/'+empresa)
+        .then(res=>res.json())
+        .then(json=>{
+            selectServicios.length = 0;
+            for(item in json){
+                console.log(item)
+                let option = document.createElement("option");
+                option.text = json[item].Descripcion;
+                option.value = json[item].Codigo;
+                selectServicios.appendChild(option);
+            }
+        })
+}

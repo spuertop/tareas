@@ -1,4 +1,4 @@
-<div class="container my-2">
+<div class="mx-5 my-3">
     <h1>📓 Registros</h1>
     <hr />
     <div class="row">
@@ -49,15 +49,15 @@
                     <table class="table table-hover table-bordered bg-light text-left">
                         <thead class="table-dark">
                             <tr>
-                                <th class="col-2" scope="col">Empleado</th>
-                                <th class="col-2" scope="col">Tarea</th>
-                                <th class="col-2" scope="col">Hora de inicio</th>
+                                <th class="col-3" scope="col"><input type="text" id="nowUserSearch" onkeyup="nowUserSearch()" placeholder="Empleado"></input></th>
+                                <th class="col-6" scope="col">Tarea</th>
+                                <th class="col-3" scope="col">Hora de inicio</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="nowTable">
                             {{#each now}}
                             <tr>
-                                <th scope="col">{{Nombre}} ({{Usuario}})</th>
+                                <th scope="col">{{Nombre}}</th>
                                 <td>{{#if last}}
                                         {{last.cliente}}, {{last.descripcionServicio}}
                                     {{else}}
@@ -87,11 +87,11 @@
                     <table class="table table-hover table-bordered bg-light text-left">
                         <thead class="table-dark">
                             <tr>
-                                <th class="col-2" scope="col">Empleado</th>
+                                <th class="col-3" scope="col">Empleado</th>
                                 <th class="col-1" scope="col">Empresa</th>
-                                <th class="col-4" scope="col">Tarea</th>
-                                <th class="col-2" scope="col">{{!-- Inicio -  --}}Fin</th>
-                                <th class="col-2" scope="col">Horas</th>
+                                <th class="col-5" scope="col">Tarea</th>
+                                <th class="col-2" scope="col">Tiempo</th>
+                                <th class="col-1" scope="col">Horas</th>
                                 <th scope="col"></th>
                             </tr>
                         </thead>
@@ -101,10 +101,104 @@
                                 <th scope="col">{{nombreUsuario}} {{!-- ({{codigoUsuario}}) --}}</th>
                                 <td>{{cliente}}</td> 
                                 <td>{{descripcionServicio}}</td>
-                                <td>{{!-- {{horaInicio}} -  --}}{{horaFin}}</td>
+                                <td>{{horaInicio}} - {{horaFin}}</td>
                                 <td>{{duracion}}</td>
-                                <td><span onclick="delRecord({{id}})">🗑️</span></td>
+                                <td style="display:flex;">
+                                    <span type="button" data-bs-toggle="modal" data-bs-target="#editModal{{id}}">✏️</span>
+                                    <span type="button" data-bs-toggle="modal" data-bs-target="#delMoldal{{id}}">🗑️</span>
+                                </td>
                             </tr>
+                            <!-- Start Delete record modal -->
+                            <div class="modal fade" id="delMoldal{{id}}" tabindex="-1" aria-labelledby="delMoldal{{id}}Label" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                    <div class="modal-header alert-danger">
+                                        <h5 class="modal-title" id="delMoldal{{id}}Label">Eliminar registro</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Esta acción no se puede deshacer. <br>
+                                        Se va a borrar: {{duracion}} de {{nombreUsuario}} en {{cliente}}, {{descripcionServicio}}.<br>
+                                        ¿Eliminar?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                                        <button type="button" class="btn btn-success" onclick="delRecord({{id}})">Sí</button>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{!-- End Delete record modal --}}
+                            <!-- Start Edit record Modal -->
+                            <div class="modal fade" id="editModal{{id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editModal{{id}}Label" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModal{{id}}Label">Editar registro {{id}}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="/admin/updateRecord/{{id}}" method="post">
+                                        <div class="modal-body">
+                                            <input type="text" hidden value="{{id}}">
+                                            <div class="mb-1 row">
+                                                <label for="editRecordCliente" class="col-sm-2 col-form-label">Empleado</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" value="{{nombreUsuario}}" disabled readonly>
+                                                </div>
+                                            </div>
+                                            <div class="mb-1 row">
+                                                <label class="col-sm-2 col-form-label">Cliente</label>
+                                                <div class="col-sm-10">
+                                                    <select class="form-select" aria-label="select cliente" name="cliente" id="editRecordCliente_{{id}}" id2="{{id}}" onchange="cargarServicios(event)">
+                                                        <option selected value="{{cliente}}">{{cliente}}</option>
+                                                        {{#each ../empresas}}
+                                                        <option value="{{Empresa}}">{{Empresa}}</option>
+                                                        {{/each}}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="mb-1 row">
+                                                <label class="col-sm-2 col-form-label">Servicio</label>
+                                                <div class="col-sm-10">
+                                                    <select class="form-select" aria-label="select servicio" name="descripcionServicio" id="editDescripcionServicio_{{id}}" onfocus="sinServiciosCargados(event, '{{cliente}}')">
+                                                        <option selected value="{{codigoServicio}}">{{descripcionServicio}}</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="mb-1 row">
+                                                <label class="col-sm-2 col-form-label">Fecha</label>
+                                                <div class="col-sm-10">
+                                                <input  class="form-control" type="date" id="start" name="dia" value="{{dia}}">
+                                                </div>
+                                            </div>
+                                            <div class="mb-1 row">
+                                                <label class="col-sm-2 col-form-label">Inicio</label>
+                                                <div class="col-sm-10">
+                                                <input  class="form-control" type="time" id="" name="horaInicio" value="{{horaInicio}}">
+                                                </div>
+                                            </div>
+                                            <div class="mb-1 row">
+                                                <label class="col-sm-2 col-form-label">Fin</label>
+                                                <div class="col-sm-10">
+                                                <input  class="form-control" type="time" id="" name="horaFin" value="{{horaFin}}">
+                                                </div>
+                                            </div> 
+                                            <div class="mb-1 row">
+                                                <label class="col-sm-2 col-form-label">Notas</label>
+                                                <div class="col-sm-10">
+                                                <textarea class="form-control" id="" name="observaciones">{{observaciones}}</textarea>
+                                                </div>
+                                            </div>                                                                                                                     
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Descartar</button>
+                                            <button type="submit" class="btn btn-primary">Guardar</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Edit record Modal -->
                             {{/each}}
                         </tbody>
                         <tfoot>

@@ -1,6 +1,7 @@
 module.exports = {
     
-    getAllUsers: `select Nombre, Usuario from APPIA_INFO.dbo.Usuarios  where Usuario not in ('ADM', 'CONS', 'CONS0', 'FACTU', 'VGG3', 'TAB', 'VGG', 'VGG1', 'VGG2') order by Nombre`,
+    //getAllUsers: `select Nombre, Usuario from APPIA_INFO.dbo.Usuarios  where Usuario not in ('ADM', 'CONS', 'CONS0', 'FACTU', 'VGG3', 'TAB', 'VGG', 'VGG1', 'VGG2') order by Nombre`,
+    getAllUsers: `select Nombre, Usuario from APPIA_INFO.dbo.Usuarios  where Usuario not in ('ADM', 'CONS0', 'FACTU', 'VGG3', 'TAB', 'VGG', 'VGG1', 'VGG2') order by Nombre`,
     getAllUsersIn: `select Nombre, Usuario from APPIA_INFO.dbo.Usuarios where Usuario in (@userList) order by Nombre`,
     getUsername: `select Nombre from APPIA_INFO.dbo.Usuarios where Usuario = @usuario`,
     //newUser: 'insert into users (name, email, pass) values (@name, @email, @pass)',
@@ -16,6 +17,7 @@ module.exports = {
     getEmpresaTipo: `select tipodeempresa from APPIA_SQL.dbo.CopiaDeEmpresas where Empresa = @empresa`,
     getServicioDescByPk: `select Descripcion1 FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeServicio = @Codigo`,
     getServicioPrecioByPk: `select isnull(PrecioDeVentaDB1,0) as Precio FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeServicio = @Codigo`,
+    getServicioByPk: `select Descripcion1, isnull(PrecioDeVentaDB1,0) as Precio FROM APPIA_SQL.dbo.Servicios WHERE CodigoDeServicio = @Codigo`,
 
     
 }
