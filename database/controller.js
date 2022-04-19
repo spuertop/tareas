@@ -3,6 +3,7 @@ const queries = require('./queries');
 const jwt = require('jsonwebtoken');
 const registro = require('../databaseCrono/model.registros');
 const festivos = require('../databaseCrono/model.festivos');
+const Record = require('../databaseCrono/model.registros');
 
 module.exports = {
     async getAllUsers(req, res) {
@@ -76,6 +77,7 @@ module.exports = {
                 //console.log(decoded) //{user, ita, exp}
                 req.user = decoded.user;
                 if (decoded.empresa) req.empresa = decoded.empresa;
+                if (decoded.centro) req.centro = decoded.centro;
                 next();
             }
         });
@@ -121,9 +123,11 @@ module.exports = {
 
     async getOneEmpresa(req, res) {
         let empresa = req.query['name'];
+        let centro = req.query['centro'];
         const accessToken = jwt.sign({
             user: req.user,
-            empresa: empresa
+            empresa: empresa,
+            centro: centro
         }, cxn.accessToken, {
             expiresIn: '1h'
         });
@@ -140,9 +144,11 @@ module.exports = {
     async getAllServicios(req, res){
         let user = req.user;
         let empresa = req.empresa;
+        let centro = req.centro;
         let data = {
             user,
-            empresa
+            empresa,
+            centro
         };
         //Empresa is operator
         let tipoempresa = 0;
@@ -197,7 +203,6 @@ module.exports = {
 
     async postStartServicio(req, res){
         let record = {};
-        //Nombre Usuario
         try {
             const pool = await cxn.getUserConn();
             let result = await pool.request()
@@ -210,7 +215,19 @@ module.exports = {
         }
         record.codigoUsuario = req.user;
         record.empresa = 'Moldstock';
-        record.centro = 'Lliçà';
+        
+        if(req.centro == 'LLISSA'){
+            record.centro = 'Lliçà';
+        } else if (req.centro == 'ARGENTONA') {
+            record.centro = 'Argentona';
+        } else if (req.centro == 'LAROCA') {
+            record.centro = 'La Roca';
+        } else if (req.centro == 'SANTAMARIA') {
+            record.centro = 'Sta. Maria'
+        } else {
+            record.centro = 'Desconocido';
+        };
+        
         record.cliente = req.empresa;
         record.codigoServicio = req.body.servicio;
         record.descripcionServicio = req.body.descripcion;

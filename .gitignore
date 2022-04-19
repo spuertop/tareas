@@ -1,3 +1,5 @@
 /database/connection.js
 /databaseCrono/seq.conn.js
 /node_modules
+server.cert
+server.key

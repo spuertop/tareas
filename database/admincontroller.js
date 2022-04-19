@@ -183,7 +183,6 @@ module.exports = {
     //MODULO REGISTROS
     async getRecordsPage(req, res){
         let hbsOut = {...hbsData};
-        //En este momento
         let usuariosAppia;
         try {
             const pool = await cxn.getUserConn();
@@ -192,7 +191,7 @@ module.exports = {
             res.sendStatus(500)
         }
         let ahoramismo = await registros.findAll({where: {horaFin: null}});
-        ahoramismo.forEach(item=>{item.horaInicio = item.horaInicio.toLocaleString()})
+        ahoramismo.forEach(item=>{item.horaInicio = item.horaInicio.toLocaleString([], {day:'2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })})
         //Usuario -- codigoUsuario
         for(let i = 0; i < usuariosAppia.length; i++){
             let userEnahora = ahoramismo.filter(obj => {
@@ -201,8 +200,11 @@ module.exports = {
             userEnahora[0] ? usuariosAppia[i].last = userEnahora[0] : null;
         }
         hbsOut.now = usuariosAppia;
+        res.render('admin/recordsnow', hbsOut);
+    },
 
-        //Ultimas finalizadas
+    async getRecordsLast(req, res){
+        let hbsOut = {...hbsData};
         let last = await registros.findAll({ limit: 20, order: [['updatedAt', 'DESC']], where: { horaFin:{[Op.ne]: null}}});
         last.forEach(item=>{
             item.dia = item.horaInicio.toLocaleDateString([], {year: 'numeric', month: '2-digit', day:'2-digit'});
@@ -217,49 +219,13 @@ module.exports = {
         let result = await pool.request().query(queries.getAllEmpresas);
         let empresas = result.recordset; //[{Empresa: 'xx'},{}]
         hbsOut.empresas = empresas;
-        
-        res.render('admin/records', hbsOut);
+        res.render('admin/recordsLast', hbsOut);
     },
+
 
     async deleteRecordbyId(req, res){
         const result = await registros.destroy({where: {id:req.query.id}});
         result >= 1 ? res.sendStatus(200) : res.sendStatus(400);  
-    },
-
-    async getEmpresasJson(req, res){
-        try {
-            const pool = await cxn.getUserConn();
-            let result = await pool.request().query(queries.getAllEmpresas);
-            let empresas = result.recordset;
-            res.json(empresas);
-        } catch (error) {
-            res.status(500)
-            res.send(error.message)
-        }
-    },
-
-    async getServiciosDeUnaEmpresaJson(req, res){
-        let empresa = req.params.empresa;
-        let tipoempresa = 0;
-        try {
-            const pool = await cxn.getConnection();
-            tipoempresa = (await pool.request()
-                .input('empresa', empresa)
-                .query(queries.getEmpresaTipo)).recordset[0].tipodeempresa;
-        } catch (error) {
-            res.status(500)
-        }
-        try {
-            //let queryS = ;
-            const pool = await cxn.getConnection();
-            let result = await pool.request()
-                .input('Empresa', empresa)
-                .query(tipoempresa == 2 ? queries.getAllServiciosOperator : queries.getAllServicios);
-            let servicios = result.recordset;
-            res.json(servicios);
-        } catch (error) {
-            res.status(500)
-        }
     },
 
     async updateRecordById(req, res){
@@ -324,8 +290,90 @@ module.exports = {
             let registroAactualizar = await registros.findByPk(req.params.id, {raw: false});
             registroAactualizar.update(record);
             await registroAactualizar.save();
-            res.redirect('/admin/records');
+            res.redirect(req.headers.referer);
         }
+    },
+
+    async getEmpresasJson(req, res){
+        try {
+            const pool = await cxn.getUserConn();
+            let result = await pool.request().query(queries.getAllEmpresas);
+            let empresas = result.recordset;
+            res.json(empresas);
+        } catch (error) {
+            res.status(500)
+            res.send(error.message)
+        }
+    },
+
+    async getServiciosDeUnaEmpresaJson(req, res){
+        let empresa = req.params.empresa;
+        let tipoempresa = 0;
+        try {
+            const pool = await cxn.getConnection();
+            tipoempresa = (await pool.request()
+                .input('empresa', empresa)
+                .query(queries.getEmpresaTipo)).recordset[0].tipodeempresa;
+        } catch (error) {
+            res.status(500)
+        }
+        try {
+            //let queryS = ;
+            const pool = await cxn.getConnection();
+            let result = await pool.request()
+                .input('Empresa', empresa)
+                .query(tipoempresa == 2 ? queries.getAllServiciosOperator : queries.getAllServicios);
+            let servicios = result.recordset;
+            res.json(servicios);
+        } catch (error) {
+            res.status(500)
+        }
+    },
+
+
+
+    async recordstab31(req, res){
+        //console.log(req.query) //{ start: '2022-04-13', end: '2022-04-15', user: 'vgg' }
+        let records = await registros.findAll({
+            where: { 
+                codigoUsuario : req.query.user,
+                dia: {[Op.between] : [new Date(req.query.start),new Date(req.query.end)]}
+            }
+        });      
+        let allDays = [];
+        let start = new Date(req.query.start);
+        let end = new Date(req.query.end);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+        for(let i = start; i <= end; i = start.setDate(start.getDate()+1)){
+            allDays.push({
+                dia: new Date(i).toLocaleDateString([], {year: 'numeric', month: '2-digit', day:'2-digit'}),
+                diaString: new Date(i),
+                tiempoDescanso: 0,
+                tiempoTrabajado: 0,
+                registros: []
+            });
+        }
+
+        records.forEach(record=> {
+            let dia = allDays.find(element => element.dia === record.dia);
+            if(record.descripcionServicio === 'Descanso') {
+                dia.tiempoDescanso += record.duracion;
+            } else {
+                dia.tiempoTrabajado += record.duracion;
+            }
+            record.horaInicio = record.horaInicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            record.horaFin = record.horaFin.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            record.duracion = record.duracion.toFixed(2) + ' h';
+            dia.registros.push(record)
+
+        })
+
+        allDays.forEach(dia=>{
+            dia.tiempoDescanso = dia.tiempoDescanso.toFixed(2) +' h';
+            dia.tiempoTrabajado = dia.tiempoTrabajado.toFixed(2) + ' h';
+        })
+        console.log(allDays);
+        res.json(allDays);
     }
 }
 

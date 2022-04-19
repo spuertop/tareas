@@ -1,3 +1,16 @@
+const fs = require('fs');
 const app = require('../app');
-app.listen(app.get('port'));
-console.log('Server on port ', app.get('port'));
+const https = require('https');
+
+/* https.createServer({
+    cert: fs.readFileSync('server.cert'),
+    key: fs.readFileSync('server.key')
+}, app).listen(app.get('port'), ()=>{
+    console.log('Server on port ', app.get('port'));
+}); */
+
+app.listen(app.get('port'), ()=>{
+    console.log('Server on port ', app.get('port'));
+})
+
+

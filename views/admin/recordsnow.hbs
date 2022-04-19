@@ -1,0 +1,39 @@
+<div class="mx-5 my-3">
+    <h1>📓 Registros</h1>
+    <hr />
+    <div class="row">
+        {{>recordmenu uno="En este momento"}}
+        <div class="col">
+            <h3>En este momento...</h3>
+            <table class="table table-hover table-bordered bg-light text-left">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="col-3" scope="col"><input type="text" id="nowUserSearch" onkeyup="nowUserSearch()" placeholder="Empleado"></input></th>
+                        <th class="col-6" scope="col">Tarea</th>
+                        <th class="col-3" scope="col">Hora de inicio</th>
+                    </tr>
+                </thead>
+                <tbody id="nowTable">
+                    {{#each now}}
+                    <tr>
+                        <th scope="col">{{Nombre}}</th>
+                        <td>{{#if last}}
+                                {{last.cliente}}, {{last.descripcionServicio}}
+                            {{else}}
+                                Inactivo
+                            {{/if}}
+                        </td>
+                        <td>{{#if last}}
+                                {{last.horaInicio}}
+                            {{else}}
+                                --
+                            {{/if}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="/javascripts/recordsnow.js"></script>

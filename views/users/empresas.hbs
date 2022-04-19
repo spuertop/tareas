@@ -1,6 +1,18 @@
 <div class="container text-center my-3">
+    <div class="row">
+        <h1 class="col-2">Centro: </h1>
+        <div class="col-10">
+            <select class="form-select form-select-lg" name="centro" id="centro">
+                <option value="LLISSA">Lliçà</option>
+                <option value="ARGENTONA">Argentona</option>
+                <option value="LAROCA">La Roca</option>
+                <option value="SANTAMARIA">Sta. Maria</option>
+            </select>
+        </div>
+    </div>
     <h1><strong>Cliente</strong></h1>
-    <br>
+    <hr>
+
     <ul class="list-group">
         {{#if nada}}
         <h1>No hay empresas</h1>
@@ -8,9 +20,11 @@
         {{#each data}}
         <li class="list-group-item d-flex justify-content-between align-items-center m-1">
             <h1>{{Empresa}}</h1>
-            <a href="/users/empresa?name={{Empresa}}"><button type="button" class="btn btn-success">Entrar</button></a>
+            <button onclick="setCentroCliente(event)" type="button" value="{{Empresa}}" class="btn btn-success">Entrar</button>
         </li>
         {{/each}}
         {{/if}}
     </ul>
 </div>
+
+<script src="/javascripts/empresas.js"></script>

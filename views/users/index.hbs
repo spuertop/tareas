@@ -16,35 +16,36 @@
         {{/if}}
         {{#each data}}
         <div>
-            <li class="list-group-item d-flex justify-content-between align-items-center m-1">
-                <h1>{{Nombre}}</h1>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{Usuario}}">
+            <li class="list-group-item {{!-- d-flex justify-content-between align-items-center--}} text-start m-1" 
+                type="button" data-bs-toggle="modal" data-bs-target="#{{Usuario}}">
+                <h1 class="">{{Nombre}}</h1>
+{{!--                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{Usuario}}">
                     Entrar
-                </button>
-                <!-- Modal -->
-                <div class="modal fade" id="{{Usuario}}" tabindex="-1" aria-labelledby="modal" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Hola {{Nombre}}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="/signin" method="POST">
-                                    <div class="form-group">
-                                        <input name="user" type="hidden" value="{{Usuario}}">
-                                        <input name="pass" id="pass{{Usuario}}" type="password" class="form-control" placeholder="Contraseña">
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                <button onclick="signinPost({{Usuario}})" class="btn btn-primary">Entrar</button>
-                            </div>
+                </button> --}}
+            </li>
+            <!-- Modal -->
+            <div class="modal fade" id="{{Usuario}}" tabindex="-1" aria-labelledby="modal" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Hola {{Nombre}}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="/signin" method="POST">
+                                <div class="form-group">
+                                    <input name="user" type="hidden" value="{{Usuario}}">
+                                    <input name="pass" id="pass{{Usuario}}" type="password" class="form-control" placeholder="Contraseña">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button onclick="signinPost({{Usuario}})" class="btn btn-primary">Entrar</button>
                         </div>
                     </div>
                 </div>
-            </li>
+            </div>
         </div>
         {{/each}}
         {{/if}}

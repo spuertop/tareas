@@ -20,10 +20,19 @@ router.get('/holidays', con.checkP('cr'), con.getHolidaysPage);
 router.get('/calendar', con.checkP('cr'), con.getCalendar);
 router.post('/updateCalendar', con.checkP('cc'), con.checkP('cd'), con.updateCalendar);
 
+//Records Now
 router.get('/records', con.checkP('rr'), con.getRecordsPage);
+//Records Last
+router.get('/recordsLast', con.checkP('rr'), con.getRecordsLast);
+//Records by user
+//router.get('/recordsUser');
+//Records add
+//router.get('/addRecord')
+
 router.get('/delRecord', con.checkP('rd'), con.deleteRecordbyId);
 router.get('/getEmpresasJson', con.getEmpresasJson);
 router.get('/getServicios/:empresa', con.getServiciosDeUnaEmpresaJson);
-router.post('/updateRecord/:id', con.updateRecordById)
+router.post('/updateRecord/:id', con.updateRecordById);
+router.get('/recordstab31', con.recordstab31);
 
 module.exports = router;
