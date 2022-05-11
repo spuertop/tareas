@@ -383,23 +383,28 @@ module.exports = {
                 dia: {[Op.between] : [new Date(req.query.start),new Date(req.query.end)]},
                 horaFin:{[Op.ne]: null}
             }
-        });      
+        });
+        console.log(records)   
         let allDays = [];
         let start = new Date(req.query.start);
         let end = new Date(req.query.end);
+        
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
         for(let i = start; i <= end; i = start.setDate(start.getDate()+1)){
             allDays.push({
-                dia: new Date(i).toLocaleDateString([], {year: 'numeric', month: '2-digit', day:'2-digit'}),
+                //dia: new Date(i).toLocaleDateString([], {year: 'numeric', month: '2-digit', day:'2-digit'}),
+                dia: (new Date(i)).toISOString().substring(0, 10),
                 diaString: new Date(i),
                 tiempoDescanso: 0,
                 tiempoTrabajado: 0,
                 registros: []
             });
         }
+        console.log(allDays)
 
         records.forEach(record=> {
             let dia = allDays.find(element => element.dia === record.dia);
+            console.log("Aqui el dia ------------------", dia)
             if(record.descripcionServicio === 'Descanso') {
                 dia.tiempoDescanso += record.duracion;
             } else {
