@@ -1,4 +1,5 @@
 var express = require('express');
+const { checkP } = require('../database/admincontroller');
 var router = express.Router();
 var con = require('../database/admincontroller');
 
@@ -25,14 +26,15 @@ router.get('/records', con.checkP('rr'), con.getRecordsPage);
 //Records Last
 router.get('/recordsLast', con.checkP('rr'), con.getRecordsLast);
 //Records by user
-//router.get('/recordsUser');
+router.get('/recordsUser', con.checkP('rr'), con.getRecordsByUser);
 //Records add
 //router.get('/addRecord')
 
 router.get('/delRecord', con.checkP('rd'), con.deleteRecordbyId);
 router.get('/getEmpresasJson', con.getEmpresasJson);
 router.get('/getServicios/:empresa', con.getServiciosDeUnaEmpresaJson);
-router.post('/updateRecord/:id', con.updateRecordById);
-router.get('/recordstab31', con.recordstab31);
+router.post('/updateRecord/:id', con.checkP('ru'), con.updateRecordById);
+router.post('/closeRecord/:id', con.checkP('ru'), con.closeRecordById);
+router.get('/recordsbyuser', checkP('rr'), con.getRecordsByuser);
 
 module.exports = router;

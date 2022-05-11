@@ -24,7 +24,58 @@
                             {{/if}}
                         </td>
                         <td>{{#if last}}
-                                {{last.horaInicio}}
+                                {{last.horaInicio}} 
+                                {{#if ../auths.ru}}
+                                <span type="button" data-bs-toggle="modal" data-bs-target="#editModal{{last.id}}">✏️</span>
+                                
+                                <!-- Start Edit record Modal -->
+                            <div class="modal fade" id="editModal{{last.id}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editModal{{last.id}}Label" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModal{{last.id}}Label">Editar registro {{last.id}}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <form action="/admin/closeRecord/{{last.id}}" method="post">
+                                        <div class="modal-body">
+                                            <input type="text" hidden value="{{last.id}}">
+                                            <input type="date" hidden name="dia" value="{{last.dia}}">
+                                            <div class="mb-1 row">
+                                                <label for="editRecordCliente" class="col-sm-2 col-form-label">Empleado</label>
+                                                <div class="col-sm-10">
+                                                    <input type="text" class="form-control" value="{{last.nombreUsuario}}" disabled readonly>
+                                                </div>
+                                            </div>
+                                            <div class="mb-1 row">
+                                                <label class="col-sm-2 col-form-label">Fecha</label>
+                                                <div class="col-sm-10">
+                                                <input  class="form-control" type="date" id="start" value="{{last.dia}}" disabled readonly>
+                                                </div>
+                                            </div>
+                                            <div class="mb-1 row">
+                                                <label class="col-sm-2 col-form-label">Inicio</label>
+                                                <div class="col-sm-10">
+                                                <input  class="form-control" type="time" id="" name="horaInicio" value="{{last.horaInicio}}">
+                                                </div>
+                                            </div>
+                                            <div class="mb-1 row">
+                                                <label class="col-sm-2 col-form-label">Fin</label>
+                                                <div class="col-sm-10">
+                                                <input  class="form-control" type="time" id="" name="horaFin" value="">
+                                                </div>
+                                            </div> 
+                                                                                                                  
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Descartar</button>
+                                            <button type="submit" class="btn btn-primary">Guardar</button>
+                                        </div>
+                                    </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End Edit record Modal -->
+                            {{/if}}
                             {{else}}
                                 --
                             {{/if}}

@@ -191,7 +191,7 @@ module.exports = {
             res.sendStatus(500)
         }
         let ahoramismo = await registros.findAll({where: {horaFin: null}});
-        ahoramismo.forEach(item=>{item.horaInicio = item.horaInicio.toLocaleString([], {day:'2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })})
+        ahoramismo.forEach(item=>{item.horaInicio0 = item.horaInicio; item.horaInicio = item.horaInicio.toLocaleString([], {day:'2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })})
         //Usuario -- codigoUsuario
         for(let i = 0; i < usuariosAppia.length; i++){
             let userEnahora = ahoramismo.filter(obj => {
@@ -199,7 +199,14 @@ module.exports = {
             });
             userEnahora[0] ? usuariosAppia[i].last = userEnahora[0] : null;
         }
-        hbsOut.now = usuariosAppia;
+        let activos = usuariosAppia.filter((item)=> 'last' in item);
+        activos.sort((a,b)=> a.last.horaInicio0 - b.last.horaInicio0);
+        let inactivos = usuariosAppia.filter((item)=> !item.hasOwnProperty('last'));
+        inactivos.sort((a,b)=>a.Usuario - b.Usuario);
+
+        let ordenados = [...activos, ...inactivos];        
+        //hbsOut.now = usuariosAppia;
+        hbsOut.now = ordenados;
         res.render('admin/recordsnow', hbsOut);
     },
 
@@ -210,6 +217,7 @@ module.exports = {
             item.dia = item.horaInicio.toLocaleDateString([], {year: 'numeric', month: '2-digit', day:'2-digit'});
             item.horaInicio = item.horaInicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             item.horaFin = item.horaFin.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            item.classDuracion = item.duracion > 9 ? 'bg-danger' : '';
             item.duracion = item.duracion.toFixed(2) + ' h';
         });
         hbsOut.last = last;
@@ -222,6 +230,18 @@ module.exports = {
         res.render('admin/recordsLast', hbsOut);
     },
 
+    async getRecordsByUser(req, res){
+        let hbsOut = {...hbsData};
+        let usuariosAppia;
+        try {
+            const pool = await cxn.getUserConn();
+            usuariosAppia = (await pool.request().query(queries.getAllUsers)).recordset;
+        } catch (error) {
+            res.sendStatus(500)
+        }
+        hbsOut.users = usuariosAppia;
+        res.render('admin/recordsbyuser', hbsOut);
+    },
 
     async deleteRecordbyId(req, res){
         const result = await registros.destroy({where: {id:req.query.id}});
@@ -294,6 +314,27 @@ module.exports = {
         }
     },
 
+    async closeRecordById(req, res){
+        let record = {};
+        //,[horaInicio]
+        record.horaInicio = new Date(req.body.dia + ' ' + req.body.horaInicio);
+        //,[horaFin]
+        record.horaFin = new Date(req.body.dia + ' ' + req.body.horaFin);
+        //,[duracion]
+        record.duracion = (record.horaFin - record.horaInicio)/3600000; //da integer en milisegundos y dividismo para tener horas
+        if(record.duracion <= 0){
+            res.status(500)
+            res.send("Hora de fin no puede ser anterior a hora de inicio");
+        } else {
+            let registroAactualizar = await registros.findByPk(req.params.id, {raw: false});
+            registroAactualizar.update(record);
+            await registroAactualizar.save();
+            res.redirect(req.headers.referer);
+        }
+        res.redirect(req.headers.referer);
+
+    },
+
     async getEmpresasJson(req, res){
         try {
             const pool = await cxn.getUserConn();
@@ -330,14 +371,17 @@ module.exports = {
         }
     },
 
+    async getRecordsByuser(req, res){
+        const pool = await cxn.getUserConn();
+        let result = await pool.request().query(queries.getAllEmpresas);
+        let empresas = result.recordset; //[{Empresa: 'xx'},{}]
 
-
-    async recordstab31(req, res){
         //console.log(req.query) //{ start: '2022-04-13', end: '2022-04-15', user: 'vgg' }
         let records = await registros.findAll({
             where: { 
                 codigoUsuario : req.query.user,
-                dia: {[Op.between] : [new Date(req.query.start),new Date(req.query.end)]}
+                dia: {[Op.between] : [new Date(req.query.start),new Date(req.query.end)]},
+                horaFin:{[Op.ne]: null}
             }
         });      
         let allDays = [];
@@ -364,15 +408,30 @@ module.exports = {
             record.horaInicio = record.horaInicio.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             record.horaFin = record.horaFin.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             record.duracion = record.duracion.toFixed(2) + ' h';
-            dia.registros.push(record)
+            record.empresas = empresas;
+            dia.registros.push(record);
 
         })
 
         allDays.forEach(dia=>{
+            if(dia.tiempoDescanso > 1 || dia.tiempoDescanso < 0.033){
+                dia.tiempoDescansoClass = 'bg-danger';
+            }
+            if(dia.tiempoTrabajado > 7.95) {
+                dia.tiempoTrabajadoClass = 'bg-danger';
+            }
+            if(dia.tiempoTrabajado === 0 && dia.tiempoDescanso === 0){
+                dia.tiempoDescansoClass = '';
+                dia.tiempoTrabajadoClass = '';
+            }
             dia.tiempoDescanso = dia.tiempoDescanso.toFixed(2) +' h';
             dia.tiempoTrabajado = dia.tiempoTrabajado.toFixed(2) + ' h';
         })
-        console.log(allDays);
+        
+
+
+        
+        //console.log(allDays);
         res.json(allDays);
     }
 }

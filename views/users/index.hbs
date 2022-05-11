@@ -16,12 +16,11 @@
         {{/if}}
         {{#each data}}
         <div>
-            <li class="list-group-item {{!-- d-flex justify-content-between align-items-center--}} text-start m-1" 
-                type="button" data-bs-toggle="modal" data-bs-target="#{{Usuario}}">
-                <h1 class="">{{Nombre}}</h1>
-{{!--                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{Usuario}}">
+            <li class="list-group-item d-flex justify-content-between align-items-center m-1">
+                <h1>{{Nombre}}</h1>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#{{Usuario}}">
                     Entrar
-                </button> --}}
+                </button>
             </li>
             <!-- Modal -->
             <div class="modal fade" id="{{Usuario}}" tabindex="-1" aria-labelledby="modal" aria-hidden="true">

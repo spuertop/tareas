@@ -1,0 +1,28 @@
+<div class="mx-5 my-3">
+    <h1>📓 Registros</h1>
+    <hr />
+    <div class="row">
+        {{>recordmenu tres="Informe por usuario"}}
+        <div class="col">
+            <h3>Informe por usuario</h3>
+            <div id="tab3-ruser">
+                <form class="mb-2" onsubmit="return ruserReport(event)">
+                    <div class="row">
+                        <div class="col-6">
+                            <input class="form-control" list="usersDataListOptions" id="ruseruser" placeholder="Teclea para buscar..." autocomplete="off">
+                            <datalist id="usersDataListOptions">
+                                {{#each users}}
+                                    <option value="{{Usuario}} {{Nombre}}"></option>
+                                {{/each}}
+                            </datalist>
+                        </div>
+                        <div class="col-4"><input id="ruserdates" class="calendar form-control" placeholder="Selecciona los días..." name="range" required/></div>
+                        <div class="col-2"><button class="btn btn-primary form-control" type="submit">Busca</button></div>
+                    </div>
+                </form>
+                <div id="ruserResult"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/javascripts/recordsbyuser.js"></script>
