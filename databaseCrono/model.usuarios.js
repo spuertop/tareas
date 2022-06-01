@@ -8,6 +8,7 @@ const User = sequelize.define('User',{
     permisos: DataTypes.TEXT
 },{
     //other options
+    tableName: 'Users_OLD'
 });
 //sequelize.sync({ force: true });
 module.exports = User;
